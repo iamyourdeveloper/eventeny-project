@@ -80,6 +80,7 @@ function sortData(data, key, direction) {
 }
 
 function paginate(data, page, pageSize) {
+  if (pageSize === Infinity) return data;
   const start = (page - 1) * pageSize;
   return data.slice(start, start + pageSize);
 }
@@ -92,6 +93,7 @@ function getProcessedData(allData, st) {
 }
 
 function getTotalPages(totalItems, pageSize) {
+  if (pageSize === Infinity) return 1;
   return Math.max(1, Math.ceil(totalItems / pageSize));
 }
 

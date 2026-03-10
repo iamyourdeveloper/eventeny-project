@@ -2,6 +2,22 @@
  * Mock data for the Vendor Application Management project.
  * Shared by both index.html and applicant-profile.html.
  */
+
+const STATUS_STORAGE_KEY = "eventeny_status_overrides";
+
+const isPageRefresh =
+  performance.getEntriesByType("navigation")[0]?.type === "reload";
+
+if (isPageRefresh) {
+  sessionStorage.removeItem(STATUS_STORAGE_KEY);
+}
+
+function persistApplicationStatus(id, status) {
+  const overrides = JSON.parse(sessionStorage.getItem(STATUS_STORAGE_KEY) || "{}");
+  overrides[id] = status;
+  sessionStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(overrides));
+}
+
 const applications = [
   {
     id: 1,
@@ -321,3 +337,11 @@ const applications = [
     }
   }
 ];
+
+(function rehydrateStatuses() {
+  const overrides = JSON.parse(sessionStorage.getItem(STATUS_STORAGE_KEY) || "{}");
+  for (const [id, status] of Object.entries(overrides)) {
+    const app = applications.find(a => a.id === Number(id));
+    if (app) app.status = status;
+  }
+})();

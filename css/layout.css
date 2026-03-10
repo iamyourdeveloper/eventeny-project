@@ -106,11 +106,20 @@
 
 /* ===== Pagination ===== */
 .pagination {
+  padding: var(--space-lg) 0;
+}
+
+.pagination-inner {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-md);
+}
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
   gap: var(--space-xs);
-  padding: var(--space-lg) 0;
 }
 
 /* ===== Main Content Spacing ===== */

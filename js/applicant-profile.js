@@ -1,6 +1,6 @@
 /**
  * Applicant Profile Page controller.
- * Reads applicant ID from query params, renders full profile or fallback.
+ * Reads applicant ID from URL hash, renders full profile or fallback.
  */
 (function () {
   "use strict";
@@ -9,8 +9,7 @@
   const backIcon = document.getElementById("backIcon");
   if (backIcon) backIcon.innerHTML = ICONS.back;
 
-  const params = new URLSearchParams(window.location.search);
-  const applicantId = Number(params.get("id"));
+  const applicantId = Number(window.location.hash.replace("#", ""));
   const applicant = applications.find(item => item.id === applicantId);
 
   if (!applicant) {
@@ -242,6 +241,7 @@
           alert(`Request for more info sent to ${app.applicantName}.`);
         } else {
           app.status = decision;
+          persistApplicationStatus(app.id, decision);
           renderProfile(app);
         }
       });

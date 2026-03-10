@@ -124,10 +124,17 @@ Data flow: **all data → search → filter → sort → paginate → render**
 | Mock data only | Backend integration is out of scope for a take-home |
 | AI is a prototype | Uses pre-written mock assessments, presented honestly with "Prototype" badge |
 | Mobile uses cards | Compressed tables at 375px are unusable; cards preserve readability |
-| In-memory state only | Decision actions update mock state; no persistence needed |
+| Session-scoped status persistence | Decision actions (approve, waitlist, reject) persist across page navigations via `sessionStorage` so organizers see consistent state between list and profile views — but reset on refresh so the demo always starts clean |
 | Documents are stubs | File viewing is mocked — real integration would need backend |
-| 5 items per page | Matches the spec's `pageSize: 5` for clear pagination demo |
+| 5 items per page default | Matches the spec's `pageSize: 5` for a clear pagination demo; a "Show all" toggle is available for quick full-list scanning |
+| "Show all" pagination toggle | Lets organizers view the full list at once when 5-per-page is too restrictive; page size resets when filters or search change |
 | System + Inter font | Google Fonts Inter for polish, system-ui fallback for reliability |
+
+---
+
+| Body-appended action dropdown | A single shared dropdown is appended to `<body>` and positioned via JS to avoid overflow clipping from table containers with bounded height |
+| Hash-based profile routing | Profile links use `#id` instead of `?id=` for simpler static-hosting compatibility and to avoid server-side URL rewrite configuration |
+| Vercel deployment config | `vercel.json` enables `cleanUrls` for cleaner URL paths in production hosting |
 
 ---
 

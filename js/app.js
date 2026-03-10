@@ -52,9 +52,62 @@
   dom.filterPanelClose.innerHTML = ICONS.close;
 
   /* ---------------------------------------------------------------
-     OPEN ACTION MENU TRACKER
+     SHARED ACTION DROPDOWN (lives outside the table on <body>)
   --------------------------------------------------------------- */
   let openActionMenu = null;
+  let openActionBtn = null;
+
+  const actionDropdown = document.createElement("div");
+  actionDropdown.className = "action-menu";
+  actionDropdown.id = "actionMenuDropdown";
+  document.body.appendChild(actionDropdown);
+
+  function closeActionMenu() {
+    actionDropdown.classList.remove("open");
+    openActionMenu = null;
+    openActionBtn = null;
+  }
+
+  function positionDropdown(btn) {
+    const rect = btn.getBoundingClientRect();
+    const menuWidth = 160;
+    let left = rect.right - menuWidth;
+    let top = rect.bottom + 4;
+
+    if (left < 0) left = rect.left;
+    if (top + 200 > window.innerHeight) {
+      top = rect.top - actionDropdown.offsetHeight - 4;
+    }
+
+    actionDropdown.style.top = top + "px";
+    actionDropdown.style.left = left + "px";
+  }
+
+  function openMenuForButton(btn) {
+    const id = btn.dataset.actionId;
+    if (openActionBtn === btn) {
+      closeActionMenu();
+      return;
+    }
+
+    actionDropdown.innerHTML =
+      `<a class="action-menu-item" href="applicant-profile.html#${id}">View profile</a>` +
+      `<button class="action-menu-item" type="button" data-quick-action="approve" data-id="${id}">Approve</button>` +
+      `<button class="action-menu-item" type="button" data-quick-action="waitlist" data-id="${id}">Waitlist</button>` +
+      `<button class="action-menu-item" type="button" data-quick-action="reject" data-id="${id}">Reject</button>`;
+
+    actionDropdown.querySelectorAll("[data-quick-action]").forEach(item => {
+      item.addEventListener("click", () => {
+        handleQuickAction(Number(item.dataset.id), item.dataset.quickAction);
+        closeActionMenu();
+      });
+    });
+
+    actionDropdown.classList.add("open");
+    openActionMenu = actionDropdown;
+    openActionBtn = btn;
+    positionDropdown(btn);
+  }
 
   /* ---------------------------------------------------------------
      RENDER PIPELINE
@@ -230,7 +283,7 @@
               <div class="business-cell">
                 <div class="avatar">${initials}</div>
                 <div class="business-info">
-                  <a class="business-name" href="applicant-profile.html?id=${item.id}">${item.businessName}</a>
+                  <a class="business-name" href="applicant-profile.html#${item.id}">${item.businessName}</a>
                   <div class="applicant-name">${item.applicantName} ${hasAI}</div>
                 </div>
               </div>
@@ -248,12 +301,6 @@
               <button class="action-btn" type="button" aria-label="Actions for ${item.businessName}" data-action-id="${item.id}">
                 ${ICONS.dots}
               </button>
-              <div class="action-menu" id="actionMenu-${item.id}">
-                <a class="action-menu-item" href="applicant-profile.html?id=${item.id}">View profile</a>
-                <button class="action-menu-item" type="button" data-quick-action="approve" data-id="${item.id}">Approve</button>
-                <button class="action-menu-item" type="button" data-quick-action="waitlist" data-id="${item.id}">Waitlist</button>
-                <button class="action-menu-item" type="button" data-quick-action="reject" data-id="${item.id}">Reject</button>
-              </div>
             </td>
           </tr>`;
       })
@@ -280,7 +327,7 @@
                 data-id="${item.id}" aria-label="Select ${item.businessName}">
               <div class="avatar">${initials}</div>
               <div class="business-info">
-                <a class="business-name" href="applicant-profile.html?id=${item.id}">${item.businessName}</a>
+                <a class="business-name" href="applicant-profile.html#${item.id}">${item.businessName}</a>
                 <div class="applicant-name">${item.applicantName}</div>
               </div>
             </div>
@@ -303,7 +350,7 @@
             </div>
             <div class="mobile-card-footer">
               <span class="status-chip ${statusClass}">${item.status}</span>
-              <a class="btn btn-ghost btn-sm" href="applicant-profile.html?id=${item.id}">View &rarr;</a>
+              <a class="btn btn-ghost btn-sm" href="applicant-profile.html#${item.id}">View &rarr;</a>
             </div>
           </div>`;
       })
@@ -318,19 +365,41 @@
      PAGINATION
   --------------------------------------------------------------- */
   function renderPagination(totalItems, totalPages) {
-    if (totalPages <= 1) {
-      dom.pagination.innerHTML = "";
+    const showingAll = state.pageSize === Infinity;
+
+    if (showingAll) {
+      dom.pagination.innerHTML =
+        `<div class="pagination-inner">` +
+        `<button class="page-size-toggle" id="pageSizeToggle" type="button">Show 5 per page</button>` +
+        `</div>`;
+      document.getElementById("pageSizeToggle").addEventListener("click", () => {
+        state.pageSize = 5;
+        state.currentPage = 1;
+        state.selectedRows.clear();
+        render();
+      });
       return;
     }
 
-    let html = `<button class="page-btn" data-page="prev" ${state.currentPage === 1 ? "disabled" : ""} aria-label="Previous page">&lsaquo;</button>`;
+    let html = `<div class="pagination-inner">`;
 
-    for (let i = 1; i <= totalPages; i++) {
-      html += `<button class="page-btn ${i === state.currentPage ? "active" : ""}" data-page="${i}" ${i === state.currentPage ? 'aria-current="page"' : ""}>${i}</button>`;
+    if (totalPages > 1) {
+      html += `<div class="pagination-pages">`;
+      html += `<button class="page-btn" data-page="prev" ${state.currentPage === 1 ? "disabled" : ""} aria-label="Previous page">&lsaquo;</button>`;
+
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === state.currentPage ? "active" : ""}" data-page="${i}" ${i === state.currentPage ? 'aria-current="page"' : ""}>${i}</button>`;
+      }
+
+      html += `<button class="page-btn" data-page="next" ${state.currentPage === totalPages ? "disabled" : ""} aria-label="Next page">&rsaquo;</button>`;
+      html += `</div>`;
     }
 
-    html += `<button class="page-btn" data-page="next" ${state.currentPage === totalPages ? "disabled" : ""} aria-label="Next page">&rsaquo;</button>`;
+    if (totalItems > 5) {
+      html += `<button class="page-size-toggle" id="pageSizeToggle" type="button">Show all</button>`;
+    }
 
+    html += `</div>`;
     dom.pagination.innerHTML = html;
 
     dom.pagination.querySelectorAll(".page-btn").forEach(btn => {
@@ -343,6 +412,16 @@
         render();
       });
     });
+
+    const toggleBtn = document.getElementById("pageSizeToggle");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        state.pageSize = Infinity;
+        state.currentPage = 1;
+        state.selectedRows.clear();
+        render();
+      });
+    }
   }
 
   /* ---------------------------------------------------------------
@@ -408,25 +487,7 @@
     dom.tableBody.querySelectorAll(".action-btn").forEach(btn => {
       btn.addEventListener("click", e => {
         e.stopPropagation();
-        const id = btn.dataset.actionId;
-        const menu = document.getElementById("actionMenu-" + id);
-        if (openActionMenu && openActionMenu !== menu) {
-          openActionMenu.classList.remove("open");
-        }
-        menu.classList.toggle("open");
-        openActionMenu = menu.classList.contains("open") ? menu : null;
-      });
-    });
-
-    dom.tableBody.querySelectorAll("[data-quick-action]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = Number(btn.dataset.id);
-        const action = btn.dataset.quickAction;
-        handleQuickAction(id, action);
-        if (openActionMenu) {
-          openActionMenu.classList.remove("open");
-          openActionMenu = null;
-        }
+        openMenuForButton(btn);
       });
     });
   }
@@ -487,8 +548,7 @@
         dom.filterTrigger.focus();
       }
       if (openActionMenu) {
-        openActionMenu.classList.remove("open");
-        openActionMenu = null;
+        closeActionMenu();
       }
     }
   });
@@ -497,10 +557,16 @@
     if (state.isFilterOpen && !dom.filterPanel.contains(e.target) && !dom.filterTrigger.contains(e.target)) {
       closeFilter();
     }
-    if (openActionMenu && !openActionMenu.contains(e.target) && !e.target.closest(".action-btn")) {
-      openActionMenu.classList.remove("open");
-      openActionMenu = null;
+    if (openActionMenu && !actionDropdown.contains(e.target) && !e.target.closest(".action-btn")) {
+      closeActionMenu();
     }
+  });
+
+  window.addEventListener("scroll", () => {
+    if (openActionBtn) positionDropdown(openActionBtn);
+  }, true);
+  window.addEventListener("resize", () => {
+    if (openActionMenu) closeActionMenu();
   });
 
   // Filter changes
@@ -563,7 +629,10 @@
       const statusMap = { approve: "Approved", waitlist: "Waitlisted", reject: "Rejected" };
       state.selectedRows.forEach(id => {
         const app = applications.find(a => a.id === id);
-        if (app) app.status = statusMap[action];
+        if (app) {
+          app.status = statusMap[action];
+          persistApplicationStatus(id, statusMap[action]);
+        }
       });
       state.selectedRows.clear();
       render();
@@ -597,6 +666,7 @@
     const app = applications.find(a => a.id === id);
     if (app && statusMap[action]) {
       app.status = statusMap[action];
+      persistApplicationStatus(id, statusMap[action]);
       render();
     }
   }
