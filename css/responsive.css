@@ -13,6 +13,62 @@
   }
 }
 
+/* Table → card layout for narrow desktop / large tablet */
+@media (max-width: 930px) {
+  .desktop-table {
+    display: none;
+  }
+
+  .mobile-cards {
+    display: block;
+  }
+
+  .mobile-select-all {
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+  }
+
+  /* Bulk bar — sticky bottom for card layout */
+  .bulk-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 90;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    padding: var(--space-md) var(--space-lg);
+    margin-top: 15px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  @keyframes bulkBarSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  @keyframes bulkBarSlideDown {
+    from { transform: translateY(0);    opacity: 1; }
+    to   { transform: translateY(100%); opacity: 0; }
+  }
+
+  .bulk-bar.bulk-bar-enter {
+    animation: bulkBarSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .bulk-bar.bulk-bar-exit {
+    animation: bulkBarSlideDown 0.25s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+  }
+
+  .bulk-bar-actions {
+    margin-left: 0;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 var(--space-md);
@@ -101,15 +157,6 @@
     display: block;
   }
 
-  /* Table hidden on mobile, cards shown */
-  .desktop-table {
-    display: none;
-  }
-
-  .mobile-cards {
-    display: block;
-  }
-
   /* Profile page */
   .profile-grid {
     grid-template-columns: 1fr;
@@ -142,15 +189,20 @@
     flex-wrap: wrap;
   }
 
-  /* Bulk bar */
-  .bulk-bar {
-    flex-direction: column;
-    align-items: stretch;
-    text-align: center;
+}
+
+/* ===== Small Mobile — 2×2 summary chip grid ===== */
+@media (max-width: 455px) {
+  .summary-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    gap: var(--space-sm);
+    overflow-x: visible;
   }
 
-  .bulk-bar-actions {
-    margin-left: 0;
+  .summary-chip {
+    width: 100%;
     justify-content: center;
   }
 }

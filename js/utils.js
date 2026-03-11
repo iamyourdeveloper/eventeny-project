@@ -31,15 +31,17 @@ function getInitials(name) {
 function matchesSearch(item, query) {
   if (!query) return true;
   const q = query.toLowerCase();
-  const fields = [
+  const textFields = [
     item.businessName,
     item.applicantName,
     item.applicationName,
-    (item.tags || []).join(" "),
-    item.status,
-    item.paymentStatus
+    (item.tags || []).join(" ")
   ];
-  return fields.some(f => f && f.toLowerCase().includes(q));
+  const exactFields = [item.status, item.paymentStatus];
+  return (
+    textFields.some(f => f && f.toLowerCase().includes(q)) ||
+    exactFields.some(f => f && f.toLowerCase() === q)
+  );
 }
 
 function matchesFilters(item, filters) {

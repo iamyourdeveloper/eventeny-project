@@ -32,6 +32,8 @@
     emptyState: document.getElementById("emptyState"),
     emptyReset: document.getElementById("emptyReset"),
     selectAll: document.getElementById("selectAll"),
+    mobileSelectAllCheckbox: document.getElementById("mobileSelectAllCheckbox"),
+    mobileSelectAllText: document.getElementById("mobileSelectAllText"),
     sortBusiness: document.getElementById("sortBusiness"),
     sortDate: document.getElementById("sortDate"),
     sortBusinessIcon: document.getElementById("sortBusinessIcon"),
@@ -132,10 +134,12 @@
       dom.mobileCards.style.display = "none";
       dom.emptyState.style.display = "";
       dom.pagination.innerHTML = "";
+      document.getElementById("mobileSelectAll").style.display = "none";
     } else {
       dom.emptyState.style.display = "none";
       dom.desktopTable.style.display = "";
       dom.mobileCards.style.display = "";
+      document.getElementById("mobileSelectAll").style.display = "";
       renderTableRows(paged);
       renderMobileCards(paged);
       renderPagination(all.length, totalPages);
@@ -229,7 +233,7 @@
      RESULTS COUNT
   --------------------------------------------------------------- */
   function renderResultsCount(count) {
-    dom.resultsCount.textContent = `Showing ${count} application${count !== 1 ? "s" : ""}`;
+    dom.resultsCount.textContent = `${count} application${count !== 1 ? "s" : ""} submitted`;
   }
 
   /* ---------------------------------------------------------------
@@ -427,13 +431,36 @@
   /* ---------------------------------------------------------------
      BULK ACTION BAR
   --------------------------------------------------------------- */
+  let bulkBarWasVisible = false;
+  const mobileQuery = window.matchMedia("(max-width: 930px)");
+
   function renderBulkBar() {
-    if (state.selectedRows.size > 0) {
-      dom.bulkBar.classList.remove("hidden");
+    const isNowVisible = state.selectedRows.size > 0;
+    const isMobile = mobileQuery.matches;
+
+    if (isNowVisible) {
+      dom.bulkBar.classList.remove("hidden", "bulk-bar-exit");
       dom.bulkCount.textContent = `${state.selectedRows.size} application${state.selectedRows.size > 1 ? "s" : ""} selected`;
-    } else {
-      dom.bulkBar.classList.add("hidden");
+
+      if (!bulkBarWasVisible && isMobile) {
+        dom.bulkBar.classList.add("bulk-bar-enter");
+        dom.bulkBar.addEventListener("animationend", () => {
+          dom.bulkBar.classList.remove("bulk-bar-enter");
+        }, { once: true });
+      }
+    } else if (bulkBarWasVisible) {
+      if (isMobile) {
+        dom.bulkBar.classList.add("bulk-bar-exit");
+        dom.bulkBar.addEventListener("animationend", () => {
+          dom.bulkBar.classList.remove("bulk-bar-exit");
+          dom.bulkBar.classList.add("hidden");
+        }, { once: true });
+      } else {
+        dom.bulkBar.classList.add("hidden");
+      }
     }
+
+    bulkBarWasVisible = isNowVisible;
   }
 
   /* ---------------------------------------------------------------
@@ -443,12 +470,24 @@
     if (pageData.length === 0) {
       dom.selectAll.checked = false;
       dom.selectAll.indeterminate = false;
+      dom.mobileSelectAllCheckbox.checked = false;
+      dom.mobileSelectAllCheckbox.indeterminate = false;
+      dom.mobileSelectAllText.textContent = "Select all";
       return;
     }
     const allSelected = pageData.every(item => state.selectedRows.has(item.id));
     const someSelected = pageData.some(item => state.selectedRows.has(item.id));
+
     dom.selectAll.checked = allSelected;
     dom.selectAll.indeterminate = !allSelected && someSelected;
+
+    dom.mobileSelectAllCheckbox.checked = allSelected;
+    dom.mobileSelectAllCheckbox.indeterminate = !allSelected && someSelected;
+    dom.mobileSelectAllText.textContent = allSelected
+      ? `All ${pageData.length} selected`
+      : someSelected
+        ? `${state.selectedRows.size} selected`
+        : "Select all";
   }
 
   /* ---------------------------------------------------------------
@@ -605,11 +644,23 @@
   dom.sortBusiness.addEventListener("click", () => handleSort("businessName"));
   dom.sortDate.addEventListener("click", () => handleSort("date"));
 
-  // Select-all
+  // Select-all (desktop)
   dom.selectAll.addEventListener("change", () => {
     const all = getProcessedData(applications, state);
     const paged = paginate(all, state.currentPage, state.pageSize);
     if (dom.selectAll.checked) {
+      paged.forEach(item => state.selectedRows.add(item.id));
+    } else {
+      paged.forEach(item => state.selectedRows.delete(item.id));
+    }
+    render();
+  });
+
+  // Select-all (mobile / tablet)
+  dom.mobileSelectAllCheckbox.addEventListener("change", () => {
+    const all = getProcessedData(applications, state);
+    const paged = paginate(all, state.currentPage, state.pageSize);
+    if (dom.mobileSelectAllCheckbox.checked) {
       paged.forEach(item => state.selectedRows.add(item.id));
     } else {
       paged.forEach(item => state.selectedRows.delete(item.id));
