@@ -23,6 +23,10 @@
     display: block;
   }
 
+  .mobile-sort-bar {
+    display: flex;
+  }
+
   .mobile-select-all {
     display: flex;
     align-items: center;
@@ -76,6 +80,7 @@
 
   .page-header {
     padding: var(--space-lg) 0;
+    text-align: center;
   }
 
   h1 {
@@ -146,6 +151,14 @@
 
   .profile-sidebar {
     position: static;
+  }
+
+  .back-link-sidebar {
+    display: none;
+  }
+
+  .back-link-bottom {
+    display: flex;
   }
 
   .profile-header {

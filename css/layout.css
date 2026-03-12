@@ -242,6 +242,38 @@ main.container {
   color: var(--color-primary-dark);
 }
 
+.back-link-sidebar {
+  justify-content: center;
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.back-link-sidebar:hover {
+  background: var(--color-bg);
+  border-color: var(--color-border-strong);
+}
+
+.back-link-bottom {
+  display: none;
+  justify-content: center;
+  padding: var(--space-md) var(--space-lg);
+  margin-top: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.back-link-bottom:hover {
+  background: var(--color-bg);
+  border-color: var(--color-border-strong);
+}
+
 /* ===== Fallback State ===== */
 .fallback-state {
   text-align: center;

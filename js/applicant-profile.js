@@ -191,8 +191,19 @@
               <div><strong>Submitted:</strong> ${formatDate(app.date)}</div>
             </div>
           </section>
+
+          <a href="index.html" class="back-link back-link-sidebar">
+            ${ICONS.back}
+            Back to Vendor Application Management
+          </a>
         </div>
       </div>
+
+      <!-- Mobile / Tablet bottom back link -->
+      <a href="index.html" class="back-link back-link-bottom">
+        ${ICONS.back}
+        Back to Vendor Application Management
+      </a>
     `;
 
     attachDecisionHandlers(app);

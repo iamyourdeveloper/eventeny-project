@@ -157,6 +157,9 @@ Data flow: **all data → search → filter → sort → paginate → render**
 | Pagination hidden when ≤5 items | The "Show 5 per page" toggle is suppressed when the filtered dataset has 5 or fewer items, since pagination adds no value at that count |
 | Chip removal syncs snapshot | Removing an active filter chip while the panel is open also updates the snapshot, so closing the panel won't silently re-apply the removed filter |
 | Apply button scoped to open panel | The Apply button only appears when the filter panel is open and at least one filter is active — decoupled from the badge count to avoid showing a commit action when there's nothing to commit |
+| Mobile sort bar | Dedicated sort pill buttons (Business name, Date) appear above mobile cards at ≤930px since the desktop table column headers — which house sort controls — are hidden in card layout |
+| Sidebar + bottom back link on profile | A back-to-list link appears in the decision sidebar on desktop and as a separate full-width link below the profile on mobile/tablet, ensuring navigation is always reachable regardless of viewport |
+| Centered page header on mobile | The page header centers on viewports ≤768px for a balanced, app-like feel on narrow screens where left-aligned text can appear off-center |
 
 
 ## Collaboration Plan
@@ -191,6 +194,10 @@ Data flow: **all data → search → filter → sort → paginate → render**
 | **QA** | Test filter snapshot revert across all close methods (×, overlay, Escape) and verify chip removal stays in sync with snapshot state; confirm no stale filter state after rapid open/close cycles |
 | **Engineering** | Evaluate snapshot model performance if filter count grows significantly; consider memoizing processed data during live preview to reduce redundant re-renders |
 | **QA** | Verify "Show 5 per page" toggle correctly hides when filtered results are ≤5 and reappears when results exceed 5 after filter changes |
+| **Design** | Validate mobile sort bar pill styling and placement relative to filter chips and mobile select-all; confirm centered page header feels balanced on small viewports |
+| **Product** | Confirm whether mobile sort is a common enough organizer action to justify a dedicated bar, or if a single default sort order is sufficient on mobile |
+| **QA** | Test mobile sort bar icon sync with desktop table header sort state; verify sidebar and bottom back links show/hide correctly at the 768px breakpoint across browsers |
+| **Engineering** | Evaluate mobile sort bar extensibility if product adds more sort criteria; confirm back-link routing handles clean URLs in Vercel deployment |
 
 ---
 
@@ -230,6 +237,9 @@ Data flow: **all data → search → filter → sort → paginate → render**
 - Hiding the "Show 5 per page" toggle when the filtered dataset has ≤5 items avoids presenting a meaningless control — progressive disclosure keeps the interface clean and focused
 - Syncing filter chip removal with the open-panel snapshot prevents a jarring UX where a manually removed filter silently reappears when the panel is closed
 - Decoupling the Apply button visibility from the filter badge and scoping it to open-panel context reduces visual noise when browsing the filtered table without the panel open
+- Mobile card layouts lose the desktop table's column-header sort controls — a dedicated sort bar with pill-style buttons restores sort access without relying on hidden table mechanics
+- A back-to-list link needs dual placement: in the sidebar on desktop (always visible alongside decision actions) and at the bottom of the profile on mobile (where it's reachable after reviewing all content without scrolling back up)
+- Centering the page header on narrow viewports creates a more balanced, app-like feel where left-aligned text can appear oddly offset due to shorter line lengths
 
 ---
 

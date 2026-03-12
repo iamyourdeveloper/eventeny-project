@@ -765,6 +765,58 @@
   font-size: 0.9rem;
 }
 
+/* ===== Mobile Sort Bar ===== */
+.mobile-sort-bar {
+  display: none;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.mobile-sort-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.mobile-sort-buttons {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.mobile-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.mobile-sort-btn:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.mobile-sort-btn.active {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
 /* ===== Mobile Select All ===== */
 .mobile-select-all {
   display: none;

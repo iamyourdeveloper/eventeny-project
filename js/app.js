@@ -39,6 +39,11 @@
     sortDate: document.getElementById("sortDate"),
     sortBusinessIcon: document.getElementById("sortBusinessIcon"),
     sortDateIcon: document.getElementById("sortDateIcon"),
+    mobileSortBar: document.getElementById("mobileSortBar"),
+    mobileSortBusiness: document.getElementById("mobileSortBusiness"),
+    mobileSortDate: document.getElementById("mobileSortDate"),
+    mobileSortBusinessIcon: document.getElementById("mobileSortBusinessIcon"),
+    mobileSortDateIcon: document.getElementById("mobileSortDateIcon"),
     bulkBar: document.getElementById("bulkBar"),
     bulkCount: document.getElementById("bulkCount"),
     bulkDeselect: document.getElementById("bulkDeselect"),
@@ -57,6 +62,7 @@
   /* ---------------------------------------------------------------
      SHARED ACTION DROPDOWN (lives outside the table on <body>)
   --------------------------------------------------------------- */
+  let mobileSortTouched = false;
   let openActionMenu = null;
   let openActionBtn = null;
 
@@ -133,6 +139,7 @@
     if (all.length === 0) {
       dom.desktopTable.style.display = "none";
       dom.mobileCards.style.display = "none";
+      dom.mobileSortBar.style.display = "none";
       dom.emptyState.style.display = "";
       dom.pagination.innerHTML = "";
       document.getElementById("mobileSelectAll").style.display = "none";
@@ -140,6 +147,7 @@
       dom.emptyState.style.display = "none";
       dom.desktopTable.style.display = "";
       dom.mobileCards.style.display = "";
+      dom.mobileSortBar.style.display = "";
       document.getElementById("mobileSelectAll").style.display = "";
       renderTableRows(paged);
       renderMobileCards(paged);
@@ -250,19 +258,15 @@
      SORT ICONS
   --------------------------------------------------------------- */
   function renderSortIcons() {
-    dom.sortBusinessIcon.innerHTML =
-      state.sort.key === "businessName"
-        ? state.sort.direction === "asc"
-          ? ICONS.sortAsc
-          : ICONS.sortDesc
-        : ICONS.sortNeutral;
+    const bizIcon = state.sort.key === "businessName"
+      ? state.sort.direction === "asc" ? ICONS.sortAsc : ICONS.sortDesc
+      : ICONS.sortNeutral;
+    const dateIcon = state.sort.key === "date"
+      ? state.sort.direction === "asc" ? ICONS.sortAsc : ICONS.sortDesc
+      : ICONS.sortNeutral;
 
-    dom.sortDateIcon.innerHTML =
-      state.sort.key === "date"
-        ? state.sort.direction === "asc"
-          ? ICONS.sortAsc
-          : ICONS.sortDesc
-        : ICONS.sortNeutral;
+    dom.sortBusinessIcon.innerHTML = bizIcon;
+    dom.sortDateIcon.innerHTML = dateIcon;
 
     dom.sortBusiness.setAttribute(
       "aria-sort",
@@ -272,6 +276,11 @@
       "aria-sort",
       state.sort.key === "date" ? state.sort.direction === "asc" ? "ascending" : "descending" : "none"
     );
+
+    dom.mobileSortBusinessIcon.innerHTML = bizIcon;
+    dom.mobileSortDateIcon.innerHTML = dateIcon;
+    dom.mobileSortBusiness.classList.toggle("active", mobileSortTouched && state.sort.key === "businessName");
+    dom.mobileSortDate.classList.toggle("active", mobileSortTouched && state.sort.key === "date");
   }
 
   /* ---------------------------------------------------------------
@@ -699,9 +708,11 @@
   dom.filterReset.addEventListener("click", clearAllFilters);
   dom.emptyReset.addEventListener("click", clearAllFilters);
 
-  // Sorting
+  // Sorting (desktop + mobile)
   dom.sortBusiness.addEventListener("click", () => handleSort("businessName"));
   dom.sortDate.addEventListener("click", () => handleSort("date"));
+  dom.mobileSortBusiness.addEventListener("click", () => { mobileSortTouched = true; handleSort("businessName"); });
+  dom.mobileSortDate.addEventListener("click", () => { mobileSortTouched = true; handleSort("date"); });
 
   // Select-all (desktop)
   dom.selectAll.addEventListener("change", () => {
