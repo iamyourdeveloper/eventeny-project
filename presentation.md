@@ -77,7 +77,6 @@ js/
   utils.js                   Pure helpers (debounce, formatting, matching, sorting, icons)
   app.js                     Main page controller — all rendering and event handling
   applicant-profile.js       Profile page controller — routing, rendering, decision actions
-rules.md                     Full product spec and implementation rules
 README.md                    Project documentation
 ```
 
