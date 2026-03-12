@@ -178,8 +178,11 @@
         label: state.filters.applicationType,
         remove: () => {
           state.filters.applicationType = "All applications";
+          if (filterSnapshot) filterSnapshot.applicationType = "All applications";
           dom.filterAppType.value = "All applications";
           state.currentPage = 1;
+          updateFilterBadge();
+          updateApplyButton();
           render();
         }
       });
@@ -190,8 +193,11 @@
         label: s,
         remove: () => {
           state.filters.status = state.filters.status.filter(x => x !== s);
+          if (filterSnapshot) filterSnapshot.status = filterSnapshot.status.filter(x => x !== s);
           syncFilterCheckboxes();
           state.currentPage = 1;
+          updateFilterBadge();
+          updateApplyButton();
           render();
         }
       });
@@ -202,8 +208,11 @@
         label: p,
         remove: () => {
           state.filters.paymentStatus = state.filters.paymentStatus.filter(x => x !== p);
+          if (filterSnapshot) filterSnapshot.paymentStatus = filterSnapshot.paymentStatus.filter(x => x !== p);
           syncFilterCheckboxes();
           state.currentPage = 1;
+          updateFilterBadge();
+          updateApplyButton();
           render();
         }
       });
@@ -373,16 +382,20 @@
     const showingAll = state.pageSize === Infinity;
 
     if (showingAll) {
-      dom.pagination.innerHTML =
-        `<div class="pagination-inner">` +
-        `<button class="page-size-toggle" id="pageSizeToggle" type="button">Show 5 per page</button>` +
-        `</div>`;
-      document.getElementById("pageSizeToggle").addEventListener("click", () => {
-        state.pageSize = 5;
-        state.currentPage = 1;
-        state.selectedRows.clear();
-        render();
-      });
+      if (totalItems > 5) {
+        dom.pagination.innerHTML =
+          `<div class="pagination-inner">` +
+          `<button class="page-size-toggle" id="pageSizeToggle" type="button">Show 5 per page</button>` +
+          `</div>`;
+        document.getElementById("pageSizeToggle").addEventListener("click", () => {
+          state.pageSize = 5;
+          state.currentPage = 1;
+          state.selectedRows.clear();
+          render();
+        });
+      } else {
+        dom.pagination.innerHTML = "";
+      }
       return;
     }
 
@@ -559,12 +572,20 @@
     dom.searchInput.focus();
   });
 
-  // Filter toggle
+  // Filter toggle (snapshot model: live preview while open, revert on cancel)
+  let filterSnapshot = null;
+
   function openFilter() {
     state.isFilterOpen = true;
+    filterSnapshot = {
+      applicationType: state.filters.applicationType,
+      status: [...state.filters.status],
+      paymentStatus: [...state.filters.paymentStatus]
+    };
     dom.filterPanel.classList.add("open");
     dom.filterTrigger.setAttribute("aria-expanded", "true");
     dom.filterOverlay.classList.add("visible");
+    updateApplyButton();
   }
 
   function closeFilter() {
@@ -572,6 +593,28 @@
     dom.filterPanel.classList.remove("open");
     dom.filterTrigger.setAttribute("aria-expanded", "false");
     dom.filterOverlay.classList.remove("visible");
+    if (filterSnapshot) {
+      state.filters.applicationType = filterSnapshot.applicationType;
+      state.filters.status = [...filterSnapshot.status];
+      state.filters.paymentStatus = [...filterSnapshot.paymentStatus];
+      dom.filterAppType.value = state.filters.applicationType;
+      syncFilterCheckboxes();
+      filterSnapshot = null;
+      state.currentPage = 1;
+      state.selectedRows.clear();
+      updateFilterBadge();
+      render();
+    }
+    updateApplyButton();
+  }
+
+  function applyFilters() {
+    filterSnapshot = null;
+    state.isFilterOpen = false;
+    dom.filterPanel.classList.remove("open");
+    dom.filterTrigger.setAttribute("aria-expanded", "false");
+    dom.filterOverlay.classList.remove("visible");
+    updateApplyButton();
   }
 
   dom.filterTrigger.addEventListener("click", () => {
@@ -579,7 +622,7 @@
   });
 
   dom.filterPanelClose.addEventListener("click", closeFilter);
-  dom.filterDone.addEventListener("click", closeFilter);
+  dom.filterDone.addEventListener("click", applyFilters);
   dom.filterOverlay.addEventListener("click", closeFilter);
 
   document.addEventListener("keydown", e => {
@@ -621,12 +664,13 @@
     }
   });
 
-  // Filter changes
+  // Filter changes (live preview — updates table immediately)
   dom.filterAppType.addEventListener("change", () => {
     state.filters.applicationType = dom.filterAppType.value;
     state.currentPage = 1;
     state.selectedRows.clear();
     updateFilterBadge();
+    updateApplyButton();
     render();
   });
 
@@ -636,6 +680,7 @@
       state.currentPage = 1;
       state.selectedRows.clear();
       updateFilterBadge();
+      updateApplyButton();
       render();
     });
   });
@@ -646,6 +691,7 @@
       state.currentPage = 1;
       state.selectedRows.clear();
       updateFilterBadge();
+      updateApplyButton();
       render();
     });
   });
@@ -761,7 +807,15 @@
     dom.searchClear.classList.remove("visible");
     state.currentPage = 1;
     state.selectedRows.clear();
+    if (state.isFilterOpen) {
+      filterSnapshot = null;
+      state.isFilterOpen = false;
+      dom.filterPanel.classList.remove("open");
+      dom.filterTrigger.setAttribute("aria-expanded", "false");
+      dom.filterOverlay.classList.remove("visible");
+    }
     updateFilterBadge();
+    updateApplyButton();
     render();
   }
 
@@ -773,9 +827,19 @@
     if (count > 0) {
       dom.filterBadge.textContent = count;
       dom.filterBadge.classList.remove("hidden");
-      dom.filterDone.classList.remove("hidden");
     } else {
       dom.filterBadge.classList.add("hidden");
+    }
+  }
+
+  function updateApplyButton() {
+    if (filterSnapshot) {
+      let count = 0;
+      if (state.filters.applicationType !== "All applications") count++;
+      count += state.filters.status.length;
+      count += state.filters.paymentStatus.length;
+      dom.filterDone.classList.toggle("hidden", count === 0);
+    } else {
       dom.filterDone.classList.add("hidden");
     }
   }

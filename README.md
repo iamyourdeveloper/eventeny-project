@@ -153,6 +153,10 @@ Data flow: **all data → search → filter → sort → paginate → render**
 | "Apply" button in filter panel | An explicit "Apply" button appears in the filter footer when at least one filter is active, giving organizers a clear completion affordance even though filters apply live |
 | Enter-key checkbox toggle in filters | Pressing Enter on a focused filter checkbox toggles it, complementing the native Space key behavior and reducing friction for keyboard-heavy workflows |
 | Filter panel footer grouping | Reset and Apply actions are grouped in a dedicated footer bar with a top border separator, preventing action buttons from getting visually lost among filter options |
+| Filter snapshot/revert model | Opening the filter panel snapshots the current filter state; closing via ×, overlay, or Escape reverts filters to the snapshot, while "Apply" commits changes — gives organizers a safe preview-before-commit workflow |
+| Pagination hidden when ≤5 items | The "Show 5 per page" toggle is suppressed when the filtered dataset has 5 or fewer items, since pagination adds no value at that count |
+| Chip removal syncs snapshot | Removing an active filter chip while the panel is open also updates the snapshot, so closing the panel won't silently re-apply the removed filter |
+| Apply button scoped to open panel | The Apply button only appears when the filter panel is open and at least one filter is active — decoupled from the badge count to avoid showing a commit action when there's nothing to commit |
 
 
 ## Collaboration Plan
@@ -182,6 +186,11 @@ Data flow: **all data → search → filter → sort → paginate → render**
 | **Product** | Confirm whether "Apply" should eventually defer filter changes (batch mode) or remain a close-only affordance alongside live-filtering |
 | **Engineering** | Evaluate Enter-key checkbox toggle for cross-browser consistency; plan for potential batch-apply filter mode if product confirms the need |
 | **QA** | Test Enter-key checkbox toggle in the filter panel across browsers; verify "Apply" button visibility syncs correctly with the filter badge count |
+| **Product** | Confirm whether the filter snapshot/revert model (preview + cancel on close) matches organizer expectations or if a simpler "always live, no revert" approach is preferred |
+| **Design** | Validate the filter revert UX — should closing the panel always revert, or should there be a visual diff showing what changed before dismissal? |
+| **QA** | Test filter snapshot revert across all close methods (×, overlay, Escape) and verify chip removal stays in sync with snapshot state; confirm no stale filter state after rapid open/close cycles |
+| **Engineering** | Evaluate snapshot model performance if filter count grows significantly; consider memoizing processed data during live preview to reduce redundant re-renders |
+| **QA** | Verify "Show 5 per page" toggle correctly hides when filtered results are ≤5 and reappears when results exceed 5 after filter changes |
 
 ---
 
@@ -217,6 +226,10 @@ Data flow: **all data → search → filter → sort → paginate → render**
 - Adding an explicit "Apply" button alongside live-filtering provides a clear completion signal — users expect a confirmation affordance even when changes are already applied, reducing "did it save?" anxiety
 - Grouping Reset and Apply in a dedicated footer with a border separator creates clearer visual hierarchy and prevents action buttons from getting lost among filter checkbox groups
 - Enter-key support on filter checkboxes reduces friction for keyboard-heavy organizers who expect Enter to toggle form controls, complementing the native Space key behavior browsers provide by default
+- A filter snapshot/revert model (live preview + cancel) gives organizers confidence to explore filter combinations without fear of losing their previous view — closing the panel reverts to the pre-open state, while "Apply" commits changes
+- Hiding the "Show 5 per page" toggle when the filtered dataset has ≤5 items avoids presenting a meaningless control — progressive disclosure keeps the interface clean and focused
+- Syncing filter chip removal with the open-panel snapshot prevents a jarring UX where a manually removed filter silently reappears when the panel is closed
+- Decoupling the Apply button visibility from the filter badge and scoping it to open-panel context reduces visual noise when browsing the filtered table without the panel open
 
 ---
 
