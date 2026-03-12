@@ -135,24 +135,6 @@
     transform: translateY(0);
   }
 
-  .filter-panel-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    padding: 0;
-  }
-
-  .filter-panel-close:hover {
-    background: var(--color-bg);
-  }
-
   .filter-overlay.visible {
     display: block;
   }

@@ -215,7 +215,22 @@
 }
 
 .filter-panel-close {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--transition-fast);
+}
+
+.filter-panel-close:hover {
+  background: var(--color-bg);
 }
 
 .filter-group {
@@ -279,10 +294,18 @@
   cursor: pointer;
 }
 
+.filter-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
 .filter-reset {
   display: inline-flex;
   align-items: center;
-  margin-top: var(--space-md);
   padding: 0;
   font-size: 0.8125rem;
   font-weight: 500;
@@ -294,6 +317,34 @@
 
 .filter-reset:hover {
   text-decoration: underline;
+}
+
+.filter-done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.filter-done:hover {
+  background: var(--color-primary-dark);
+}
+
+.filter-done:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.filter-done.hidden {
+  display: none;
 }
 
 /* ===== Active Filter Chips ===== */

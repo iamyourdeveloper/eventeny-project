@@ -135,23 +135,24 @@ Data flow: **all data → search → filter → sort → paginate → render**
 | Mobile uses cards | Compressed tables at 375px are unusable; cards preserve readability |
 | Documents are stubs | File viewing is mocked — real integration would need a backend |
 | System + Inter font | Google Fonts Inter for polish, system-ui fallback for reliability |
-| Session-scoped status persistence | Decision actions (approve, waitlist, reject) persist across page navigations via `sessionStorage` so organizers see consistent state between list and profile views — but resets on refresh so the demo always starts clean |
+| Session-scoped status persistence | Decision actions (approve, waitlist, reject) persist across page navigations via `sessionStorage` so organizers see consistent state between list and profile views — resets on refresh so the demo always starts clean |
 | Mobile select-all control | A separate select-all checkbox appears above mobile cards since the desktop table header (which houses select-all) is hidden in card layout |
 | 5 items per page default | Matches the spec's `pageSize: 5` for a clear pagination demo; a "Show all" toggle is available for quick full-list scanning |
 | "Show all" pagination toggle | Lets organizers view the full list at once when 5-per-page is too restrictive; page size resets when filters or search change |
-
----
-
 | Bulk bar animations on mobile | Slide-up/down transitions on the bulk action bar give a more app-like feel on touch devices; desktop keeps an instant toggle for speed |
 | 2×2 summary chip grid on small mobile | At ≤455px, summary chips switch from horizontal scroll to a 2×2 grid so all metrics stay visible without swiping |
 | Table → card breakpoint at 930px | Cards replace the table earlier than the standard 768px tablet breakpoint because table columns become too cramped below ~930px — readability over rigid breakpoint convention |
 | Exact match for status search | Status and payment status fields use exact-match search to prevent false positives (e.g., typing "paid" won't match "Not paid") while business name and tags stay partial-match |
-
----
-
 | Body-appended action dropdown | A single shared dropdown is appended to `<body>` and positioned via JS to avoid overflow clipping from table containers with bounded height |
 | Hash-based profile routing | Profile links use `#id` instead of `?id=` for simpler static-hosting compatibility without server-side URL rewrites |
 | Vercel deployment config | `vercel.json` enables `cleanUrls` for cleaner URL paths in production hosting |
+| Results label wording | "X applications submitted" replaces "Showing X" to frame the count as a dataset property rather than a display description — clearer when filters are active |
+| Dynamic mobile select-all label | The label updates to "X selected" or "All N selected" as rows are toggled, giving immediate feedback in card layout where selected state is less visually obvious than table row highlighting |
+| Indeterminate checkbox sync | Both desktop and mobile select-all checkboxes reflect partial-selection (indeterminate) state, so organizers always have accurate selection awareness regardless of viewport |
+| Always-visible filter close button | The filter panel `×` button is shown on all viewports — not just mobile — so organizers always have a clear dismissal target without relying solely on clicking outside the panel |
+| "Apply" button in filter panel | An explicit "Apply" button appears in the filter footer when at least one filter is active, giving organizers a clear completion affordance even though filters apply live |
+| Enter-key checkbox toggle in filters | Pressing Enter on a focused filter checkbox toggles it, complementing the native Space key behavior and reducing friction for keyboard-heavy workflows |
+| Filter panel footer grouping | Reset and Apply actions are grouped in a dedicated footer bar with a top border separator, preventing action buttons from getting visually lost among filter options |
 
 
 ## Collaboration Plan
@@ -174,6 +175,13 @@ Data flow: **all data → search → filter → sort → paginate → render**
 | **QA** | Verify card layout at the 930px breakpoint across devices, validate bulk bar slide animation, test 2×2 summary chip grid at ≤455px |
 | **QA** | Test select-all behavior across page boundaries; verify action dropdown positioning at all viewport sizes (scroll + resize edge cases) |
 | **QA** | Test profile page with missing optional fields (empty documents, empty activity); confirm fallback state for invalid IDs across browsers |
+| **Design** | Validate "X applications submitted" label wording as clearer than "Showing X" for organizer mental models when filters are active |
+| **Product** | Confirm whether the mobile select-all dynamic label ("X selected" / "All N selected") provides sufficient feedback or if a toast/notification is also needed |
+| **QA** | Verify indeterminate checkbox state renders consistently across browsers in both desktop table header and mobile select-all control |
+| **Design** | Validate always-visible filter close button and "Apply" button placement across desktop dropdown and mobile bottom sheet viewports |
+| **Product** | Confirm whether "Apply" should eventually defer filter changes (batch mode) or remain a close-only affordance alongside live-filtering |
+| **Engineering** | Evaluate Enter-key checkbox toggle for cross-browser consistency; plan for potential batch-apply filter mode if product confirms the need |
+| **QA** | Test Enter-key checkbox toggle in the filter panel across browsers; verify "Apply" button visibility syncs correctly with the filter badge count |
 
 ---
 
@@ -202,6 +210,13 @@ Data flow: **all data → search → filter → sort → paginate → render**
 - Overview cards on the profile page serve as a quick decision summary before scrolling into detail, reducing cognitive load in deep review
 - A shared `getProcessedData` utility let both the desktop table and mobile cards render from the same processed dataset, avoiding duplicated logic
 - A single shared action dropdown appended to `<body>` and repositioned on scroll/resize avoided the need for per-row dropdown instances and overflow-clipping issues
+- Changing the results label from "Showing X applications" to "X applications submitted" better communicates the scope of filtered results as a dataset property rather than a display description
+- Dynamic select-all labels ("Select all" → "X selected" → "All N selected") give immediate visual feedback in mobile card layout where selected state is less visually obvious than highlighted table rows
+- Syncing filtered indeterminate checkbox state between desktop and mobile select-all controls ensures organizers always have accurate selection awareness regardless of which viewport they're using
+- An always-visible close button on the filter panel reduces user uncertainty about how to dismiss the dropdown — on desktop, clicking outside works but isn't discoverable; a visible `×` makes the escape path explicit
+- Adding an explicit "Apply" button alongside live-filtering provides a clear completion signal — users expect a confirmation affordance even when changes are already applied, reducing "did it save?" anxiety
+- Grouping Reset and Apply in a dedicated footer with a border separator creates clearer visual hierarchy and prevents action buttons from getting lost among filter checkbox groups
+- Enter-key support on filter checkboxes reduces friction for keyboard-heavy organizers who expect Enter to toggle form controls, complementing the native Space key behavior browsers provide by default
 
 ---
 

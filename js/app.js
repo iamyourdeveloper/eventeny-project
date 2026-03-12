@@ -22,6 +22,7 @@
     filterOverlay: document.getElementById("filterOverlay"),
     filterAppType: document.getElementById("filterAppType"),
     filterReset: document.getElementById("filterReset"),
+    filterDone: document.getElementById("filterDone"),
     activeFilters: document.getElementById("activeFilters"),
     resultsCount: document.getElementById("resultsCount"),
     dataCard: document.getElementById("dataCard"),
@@ -578,6 +579,7 @@
   });
 
   dom.filterPanelClose.addEventListener("click", closeFilter);
+  dom.filterDone.addEventListener("click", closeFilter);
   dom.filterOverlay.addEventListener("click", closeFilter);
 
   document.addEventListener("keydown", e => {
@@ -606,6 +608,17 @@
   }, true);
   window.addEventListener("resize", () => {
     if (openActionMenu) closeActionMenu();
+  });
+
+  dom.filterPanel.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const el = document.activeElement;
+      if (el && el.type === "checkbox" && dom.filterPanel.contains(el)) {
+        e.preventDefault();
+        el.checked = !el.checked;
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
   });
 
   // Filter changes
@@ -760,8 +773,10 @@
     if (count > 0) {
       dom.filterBadge.textContent = count;
       dom.filterBadge.classList.remove("hidden");
+      dom.filterDone.classList.remove("hidden");
     } else {
       dom.filterBadge.classList.add("hidden");
+      dom.filterDone.classList.add("hidden");
     }
   }
 
