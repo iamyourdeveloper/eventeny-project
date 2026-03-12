@@ -42,7 +42,6 @@ js/
   utils.js                   Helpers (debounce, formatting, matching, icons)
   app.js                     Main page controller
   applicant-profile.js       Profile page controller
-rules.md                     Full product spec
 README.md                    This file
 ```
 
